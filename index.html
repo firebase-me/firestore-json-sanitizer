@@ -1,30 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Firestore Compatible JSON Converter</title>
     <!-- Bootstrap CSS link -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
+    <style>body {
+        background-color: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+    
+    .container {
+        margin-top: 30px;
+        max-width: 600px;
+        flex: 1;
+        padding-bottom: 120px; /* Adjust this value based on your footer height */
+    }
+    
+    textarea {
+        resize: vertical;
+    }
+    
+    button {
+        margin-top: 10px;
+    }
+    
+    footer {
+        background-color: #343a40;
+        color: white;
+        text-align: center;
+        padding: 10px;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        z-index: 1;
+    }
 
-        .container {
-            margin-top: 30px;
-            max-width: 600px;
-        }
-
-        textarea {
-            resize: vertical;
-        }
-
-        button {
-            margin-top: 10px;
+        footer a {
+            color: white;
+            font-weight: bold;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1 class="display-4">Firestore Compatible JSON Converter</h1>
@@ -44,6 +66,11 @@
 
         <button onclick="saveToFile()" class="btn btn-success">Save to File</button>
     </div>
+
+    <footer>
+        <p>This tool is powered by <a href="https://github.com/firebase-me/firestore-json-sanitizer"
+                target="_blank">Firestore JSON Sanitizer</a>.</p>
+    </footer>
 
     <!-- Bootstrap JS and Popper.js (required for Bootstrap) -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
@@ -99,7 +126,7 @@
                 const file = fileInput.files[0];
                 const reader = new FileReader();
 
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     const fileJson = e.target.result;
                     const firestoreCompatibleJson = convertToFirestoreCompatible(fileJson);
                     document.getElementById('output').value = firestoreCompatibleJson;
@@ -123,10 +150,6 @@
             document.body.removeChild(link);
         }
     </script>
-    
-<footer>
-    <p>This tool is powered by <a href="https://github.com/firebase-me/firestore-json-sanitizer" target="_blank">Firestore JSON Sanitizer</a>.</p>
-</footer>
 
 </body>
 </html>
