@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firestore Compatible JSON Converter</title>
+    <!-- Bootstrap CSS link -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            margin-top: 30px;
+            max-width: 600px;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="display-4">Firestore Compatible JSON Converter</h1>
+
+        <label for="jsonInput">Paste JSON or Select a File:</label>
+        <textarea id="jsonInput" class="form-control" rows="10" cols="50"></textarea><br>
+
+        <div class="custom-file">
+            <input type="file" class="custom-file-input" id="fileInput" accept=".json">
+            <label class="custom-file-label" for="fileInput">Choose file</label>
+        </div><br>
+
+        <button onclick="processJson()" class="btn btn-primary">Convert to Firestore Compatible JSON</button><br>
+
+        <label for="output">Result:</label>
+        <textarea id="output" class="form-control" rows="10" cols="50" readonly></textarea><br>
+
+        <button onclick="saveToFile()" class="btn btn-success">Save to File</button>
+    </div>
+
+    <!-- Bootstrap JS and Popper.js (required for Bootstrap) -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+        function convertToFirestoreCompatible(jsonString) {
+            let jsonObject = JSON.parse(jsonString);
+
+            function sanitizeKey(key) {
+                // Replace accented characters with their basic counterparts
+                let result = key.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+                // Trim leading and trailing spaces
+                result = result.trim();
+
+                // Replace spaces with underscores and sanitize other characters
+                result = result.replace(/[.#$/\[\] ]/g, '_');
+
+                return result;
+            }
+
+            function iterateObject(obj) {
+                for (let key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        const sanitizedKey = sanitizeKey(key);
+
+                        // If the key was changed, update it
+                        if (sanitizedKey !== key) {
+                            obj[sanitizedKey] = obj[key];
+                            delete obj[key];
+                        }
+
+                        // If the value is an object, recursively iterate through it
+                        if (typeof obj[sanitizedKey] === 'object' && obj[sanitizedKey] !== null) {
+                            iterateObject(obj[sanitizedKey]);
+                        }
+                    }
+                }
+            }
+
+            iterateObject(jsonObject);
+
+            return JSON.stringify(jsonObject, null, 2); // Use null, 2 for pretty-printing
+        }
+
+        function processJson() {
+            const jsonInput = document.getElementById('jsonInput').value;
+            const fileInput = document.getElementById('fileInput');
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const fileJson = e.target.result;
+                    const firestoreCompatibleJson = convertToFirestoreCompatible(fileJson);
+                    document.getElementById('output').value = firestoreCompatibleJson;
+                };
+
+                reader.readAsText(file);
+            } else {
+                const firestoreCompatibleJson = convertToFirestoreCompatible(jsonInput);
+                document.getElementById('output').value = firestoreCompatibleJson;
+            }
+        }
+
+        function saveToFile() {
+            const outputJson = document.getElementById('output').value;
+            const blob = new Blob([outputJson], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'converted.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
